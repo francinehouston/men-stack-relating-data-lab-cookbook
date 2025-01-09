@@ -54,18 +54,15 @@ router.post('/', async (req, res) => {
 // Delete route
 router.delete('/:itemId', async (req, res) => {
     try {
-       
-        const { userId, itemId } = req.params;
-
+        const userId = req.session.user._id
+        const {  itemId } = req.params;
+        const user = await User.findById(userId)
+        const foodItemIndex = user.pantry.findIndex(food => food._id.toString() === itemId)
         // Verify the user and delete the item
-        const result = await Pantry.deleteOne({ _id: itemId, user: userId });
-
-        if (result.deletedCount === 0) {
-            console.error('No item deleted. Item not found or user mismatch.');
-        }
-
+        user.pantry.splice(foodItemIndex,1)
+        await user.save()
         // Redirect to the pantry index
-        res.redirect('/pantry');
+        res.redirect(`/users/${userId}/foods`);
     } catch (error) {
         console.error('Error deleting food item:', error);
 
