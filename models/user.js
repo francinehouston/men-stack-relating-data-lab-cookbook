@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  pantry: [foodSchema],// Embedded array of food items
+  pantry: [foodSchema],// Embedded pantry array of food items
 });
 
 

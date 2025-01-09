@@ -1,33 +1,22 @@
 const express = require('express');
 const User = require('../models/user');
 const router = express.Router();
-const Food = require('../models/food'); // Ensure your Food model is imported
 
-router.get('/', (req, res) => {
-    const userId = req.session.user._id
-    res.render('foods/index.ejs', { id: userId });
+// Index
+router.get('/', async  (req, res) => {
+    try {
+        const userId = req.session.user._id
+        const user = await User.findById(userId).select('+pantry')
+        console.log(user, 'user')
+        res.render('foods/index.ejs', {pantry:user.pantry, id: userId });
+    } catch (error){
+        console.error('Error loading pantry:', error);
+        res.status(500).send('Error loading pantry'); 
+    }
+   
 });
 
-// index
-// router.get('/users/:userId/foods', async (req, res) => {
 
-//     try {
-//         const { userId } = req.params; // Extract userId from the URL
-//         const user = await User.findById(userId);
-//         //const foods = await Food.find({user:userId});
-//         //res.render('food/index', {userId, foods});
-
-//         if (!user) {
-//             console.error('User not found');
-//             return res.redirect('/');
-//         }
-//         // Pass the pantry items and user ID to the view 
-//         res.render('foods/index', { pantry: user.pantry, userId });
-//     } catch (error) {
-//         console.error('Error loading pantry', error);
-//         res.status(500).send('Error loading pantry');
-//     }
-// })
 
 // new
 router.get('/new', async (req, res) => {
@@ -61,9 +50,11 @@ router.post('/', async (req, res) => {
 });
 
 
+
 // Delete route
 router.delete('/:itemId', async (req, res) => {
     try {
+       
         const { userId, itemId } = req.params;
 
         // Verify the user and delete the item
@@ -82,37 +73,41 @@ router.delete('/:itemId', async (req, res) => {
         res.redirect('/');
     }
 });
+// Show Route
+router.get('/:itemId', async (req,res) => {
+    try {
+        const userId = req.session.user._id
+        const { itemId } = req.params;
+        const user = await User.findById(userId);
+    console.log(itemId)
+        const foodItem = user.pantry.find(food => food._id.toString() === itemId)
+        console.log(foodItem)
+    res.render('foods/show',{foodItem,user})
 
+    } catch (error) {
+        console.error(error.message)
+        res.status(500).send("Server internal error")
+
+    }
+        // Render the show.ejs view with the item data
+  
+});
+
+// update
 router.put('/:itemId', async (req, res) => {
     try {
-        const { userId, itemId } = req.params;
+        const userId = req.session.user._id
+        const { itemId } = req.params;
         const { name, description } = req.body;
-
+        const user = await User.findById(userId)
+        const foodItem = user.pantry.find(food => food._id.toString() === itemId)
         // Look up the user by ID
-        const user = await User.findById(userId);
-
-        if (!user) {
-            console.error(`User with ID ${userId} not found`);
-            return res.redirect('/');
-        }
-
-        // Look up the food item by itemId
-        const foodItem = user.pantry.id(itemId);
-
-        if (!foodItem) {
-            console.error(`Food item with ID ${itemId} not found`);
-            return res.redirect('/');
-        }
-
-        // Update the food item's properties
-        foodItem.name = name;
-        foodItem.description = description;
-
-        // Save changes to the user
-        await user.save();
-
+      ;
+foodItem.name = name
+foodItem.description = description
+await user.save()
         // Redirect back to the pantry index view
-        res.redirect(`/users/${userId}/foods`);
+     res.redirect(`users/${userId}/foods`)
     } catch (err) {
         console.error(err);
         res.redirect('/');
@@ -148,29 +143,16 @@ router.put('/:itemId', async (req, res) => {
 // Edit Route: GET /users/:userId/foods/:itemId/edit
 router.get('/:itemId/edit', async (req, res) => {
     try {
-        const { userId, itemId } = req.params;
-
-        // Look up the user by ID
+      
+        const userId = req.session.user._id
+        const { itemId } = req.params;
         const user = await User.findById(userId);
+    console.log(itemId)
+        const foodItem = user.pantry.find(food => food._id.toString() === itemId)
+        console.log(foodItem)
+    res.render('foods/edit',{foodItem,user})
 
-        if (!user) {
-            console.error(`User with ID ${userId} not found`);
-            return res.redirect('/');
-        }
-
-        // Look up the food item by itemId
-        const foodItem = user.pantry.id(itemId);
-
-        if (!foodItem) {
-            console.error(`Food item with ID ${itemId} not found`);
-            return res.redirect('/');
-        }
-
-        // Pass the current food item to the view
-        res.locals.foodItem = foodItem;
-
-        // Render the edit view with the food item
-        res.render('foods/edit', { food: foodItem, userId });
+        
     } catch (err) {
         console.error(err);
         res.redirect('/');

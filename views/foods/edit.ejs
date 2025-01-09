@@ -7,18 +7,18 @@
 </head>
 <body>
     
-    <h1>Edit Pantry Item: <%= food.name %></h1>
+    <h1>Edit Pantry Item: <%= foodItem.name %></h1>
 
-    <form action="/users/<%= userId %>/foods/<%= food._id %>?_method=PUT" method="POST">
+    <form action="/users/<%= user._id %>/foods/<%= foodItem._id %>?_method=PUT" method="POST">
         <label for="name">Food Name:</label>
-        <input type="text" id="name" name="name" value="<%= food.name %>" required />
+        <input type="text" id="name" name="name" value="<%= foodItem.name %>" required />
 
         <label for="description">Description:</label>
-        <textarea id="description" name="description"><%= food.description %></textarea>
+        <textarea id="description" name="description"><%= foodItem.description %></textarea>
 
         <button type="submit">Update Item</button>
     </form>
 
-    <a href="/users/<%= userId %>/foods">Back to Pantry</a>
+    <a href="/users/<%= user._id %>/foods">Back to Pantry</a>
 </body>
 </html>

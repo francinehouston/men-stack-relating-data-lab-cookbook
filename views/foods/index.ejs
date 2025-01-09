@@ -8,8 +8,32 @@
   <body>
     <%- include('../partials/_navbar.ejs') %>
     <h1>Welcome to my Pantry</h1>
+    <a href="/users/<%= id%>/foods">View my Pantry</a>
     <!-- List of Pantries here -->
+     <!--I need to have a show page, button for edit and delete-->
     <a href="/users/<%= id %>/foods/new">Create New Food</a>
+    <h1 class ="center-align">List of Pantries</h1>
+   
+    <div class="container">
+      <ul class="collection">
+        <% pantry.forEach(food => { %>
+          <li class="collection-item">
+            <a href="/users/<%= user._id %>/foods/<%= food._id %>"> <%= food.name %></a>
+          </li>
+          <% })%>
+      </ul>
+    </div>
+  <div class="card-action">
+    <a href="/users/<%= id %>/edit" class="btn waves-effect waves-light teal">Edit</a>
+    <form action="/users/<%= id %>?_method=DELETE" method="POST">
+    <button class="btn red waves-effect waves-light">Delete</button>
+    </form>
+  <a href="/users/<%= id %>/foods/new">Add New Food</a>
+
+  
+
+    
+
     
   </body>
 </html>
